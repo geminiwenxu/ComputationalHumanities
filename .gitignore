@@ -1,0 +1,12 @@
+.DS_Store
+venv/
+.idea/
+test-output/
+unzipped/
+translated/
+plaintext_dataset/
+trained_model/
+results_hacker/
+aitextgen/
+results/
+aitextgen/

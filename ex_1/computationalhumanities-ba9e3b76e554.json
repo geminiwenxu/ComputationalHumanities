@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "computationalhumanities",
+  "private_key_id": "ba9e3b76e554e3bbcb27cab391f141da8ab941b2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC3IKAAlRovAWHP\nWcP8Rr+V0qndO2/wttBKQF7NrDyzo4kyrqHs3xr/2h6phw+EK8oVDUhydrqUck0X\nHZbHd004elocfQOARQ73YGubXyOBMMSDYW3JiRMH42wG1VNCvC0g+ohgzc9ZkV/1\nAedyIW3rtBsj6mxwAILMq1W/3L9MY17E3YV5Zv8wetGmk06B7BYrgZsz4asXUJTT\n9PCudCKE6BGPkTarUzhf3Cx+c6dBCsJSmuwjXqGcMMUMMjwnqMytcgpsJ0E11hBy\nt2Woiz+anZaX8RrBDgXTxNdzlZPWWdjGSO9tMsnikYX+yfYyq1HnuQt1jp9ZTxMk\n8ZFJHiVvAgMBAAECggEAOjUNhoHeG7jFvSGcMPDP7rBSO7arwwhotmE1gQxREwxV\nDJ4DbAYST+alvl7mqK0+g2iAcZmZfpvCMym9hlM+YUhKoil+VmQc+LZWHcGkyGiW\n3ee2/MssGGLKMHXYDCtB8OyRMqvYT3Ds3jSnu1gy1yudQNI/e24+JQ4EqIJi78VQ\nU5sWPAztOL7nITmdR4NFtvkOHNkpxd6sklTnBnPiri9Mbw2uMQR7VA131RHBke2c\n75JaBAXV4C/OWXOAi6D8MdqFXWUxdSHV+r7IFCSFHKIATBl9M9jyRjwEt6HAbRLf\nofdzmRU+t1R8bxsWcMMEjp3VyrxO0srK85gduUn4kQKBgQDhv8xF6OIu7kYJp+g8\nSXm1CTgI2XjETPAFB5MW7sI7oOlXhrks//VLwiWkTMdQrOGx3S8I2O13mAeOtwTj\negTDx7Omih7lq9RItRmSdDDZHUpF74W9e5qVDdzwzCq6L5p8tgMZPYeiQZuDUbJm\nAS61k7cU69UcFGssVcSF+VDsKQKBgQDPqrX2+1YJa6geWcXFEPRJojXYoABJZmwV\nbteKo0InKcY8tAJJH4e0M4XkXrsp4tv8q6ai2l1hJWhcWlcqzOkj3MBakZE2wMPK\nj2MFw5Dv/laC29c8nUG3WUbGi89HPOU6D5I+vNasiALUx8QQATI4GboEGTOv12it\n3isMpXM31wKBgHpsvkXnbsoOs/LGmR4gpp0z+6xo66JhKwU/P1h/cNxPflvWFxQ9\nVvSXvDwm2yx4JQmFLt24bsedrfOKc189q9nUsiuN2gWpsr0fYVfYJSmJRd85byj8\nIC/XTctUnZNM/5XES1fj02t98u07X+kLmR4llnMFFhRdSmXHuYUCWQ1JAoGAduvR\njIBdwsNN4SOTp8iPvGMR5t2pjF8E4jk5YYEgbwDzLuv+qxVNRxqCQEcnc1Mgm09I\n+9WEyA799nUdmbsCf7D4zmSx/eLhvGvkTvaxV14U+JcgaOu9KFwNtcF2j9sFgfxM\nyXSmkuLIjEVht7CXq5y/83zjJn16yqaBjJpqor0CgYEAjbAcLQPfeFm7+aHbIrLf\nZtCc1je1aJoMNONmWdfenaIytfr0LBN5hJEVMWwRYbP/Rt63fsBcLaU6TxQ/ILXH\nlmwCQLLY5aSk2/+D42ylJitrt2m52lJ2W2iaZgC2Fzf6wgyHvtWTqg6Fh8ompCrd\n/GPhjiS13N9pYhKRCXK1R4E=\n-----END PRIVATE KEY-----\n",
+  "client_email": "first-ubung@computationalhumanities.iam.gserviceaccount.com",
+  "client_id": "114654414642016330108",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/first-ubung%40computationalhumanities.iam.gserviceaccount.com"
+}
