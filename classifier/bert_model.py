@@ -1,11 +1,5 @@
-import pandas as pd
-import numpy as np
 import torch.nn as nn
-from pytorch_pretrained_bert import BertTokenizer, BertModel
-import torch
-from keras.preprocessing.sequence import pad_sequences
-from sklearn.metrics import classification_report
-import json
+from pytorch_pretrained_bert import BertModel
 
 
 class BertBinaryClassifier(nn.Module):
