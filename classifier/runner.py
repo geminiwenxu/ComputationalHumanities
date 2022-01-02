@@ -2,14 +2,16 @@ from classifier.bert_model import BertBinaryClassifier
 from classifier.prepare_data import prepare_data
 import torch
 import torch.nn as nn
-from pytorch_pretrained_bert import BertTokenizer
 from sklearn.metrics import classification_report
 from transformers import BertTokenizer
 import json
+import yaml
+from pkg_resources import resource_filename
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-BATCH_SIZE = 500
-EPOCHS = 10
+BATCH_SIZE = 1
+EPOCHS = 3
 bert_clf = BertBinaryClassifier()
 bert_clf.to(device)
 optimizer = torch.optim.Adam(bert_clf.parameters(), lr=3e-6)
@@ -59,8 +61,15 @@ def main():
     print(classification_report(dev_y, bert_predicted))
 
     # test model
+    def get_config(path: str) -> dict:
+        with open(resource_filename(__name__, path), 'r') as stream:
+            conf = yaml.safe_load(stream)
+        return conf
+
+    config = get_config('/../config/config.yaml')
+    test_path = resource_filename(__name__, config['test']['path'])
     result = []
-    f = open('/Users/wenxu/PycharmProjects/ComputationalHumanities/recognition_dataset-challenge/dataset_test.json')
+    f = open(test_path)
     data = json.load(f)
     for i in data:
         dict = {}

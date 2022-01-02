@@ -1,2 +1,11 @@
 file_path:
   path: /plaintext_dataset/
+
+train:
+  path: /../recognition_dataset-labeled/dataset_train.json
+
+dev:
+  path: /../recognition_dataset-labeled/dataset_dev.json
+
+test:
+  path: /../recognition_dataset-challenge/dataset_test.json

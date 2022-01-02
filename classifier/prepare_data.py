@@ -1,15 +1,27 @@
 import pandas as pd
 import numpy as np
-from pytorch_pretrained_bert import BertTokenizer, BertModel
+from pytorch_pretrained_bert import BertTokenizer
 import torch
 from keras.preprocessing.sequence import pad_sequences
+import yaml
+from pkg_resources import resource_filename
+
+
+def get_config(path: str) -> dict:
+    with open(resource_filename(__name__, path), 'r') as stream:
+        conf = yaml.safe_load(stream)
+    return conf
+
+
+config = get_config('/../config/config.yaml')
+train_path = resource_filename(__name__, config['train']['path'])
+dev_path = resource_filename(__name__, config['dev']['path'])
+test_path = resource_filename(__name__, config['test']['path'])
 
 
 def prepare_data(BATCH_SIZE):
-    train_df = pd.read_json(
-        '/Users/wenxu/PycharmProjects/ComputationalHumanities/recognition_dataset-labeled/dataset_train.json')
-    dev_df = pd.read_json(
-        '/Users/wenxu/PycharmProjects/ComputationalHumanities/recognition_dataset-labeled/dataset_dev.json')
+    train_df = pd.read_json(train_path)
+    dev_df = pd.read_json(dev_path)
 
     train_data = [{'text': text, 'label': type_data} for text in list(train_df['text']) for type_data in
                   list(train_df['label_id'])]
