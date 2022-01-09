@@ -26,9 +26,9 @@ def main():
         train_loss = 0
         for step_num, batch_data in enumerate(train_dataloader):
             token_ids, masks, labels = tuple(t for t in batch_data)
-            token_ids.to(device)
-            masks.to(device)
-            labels.to(device)
+            token_ids = token_ids.to(device)
+            masks = masks.to(device)
+            labels = labels.to(device)
             probas = bert_clf(token_ids, masks)
             loss_func = nn.BCELoss()
             batch_loss = loss_func(probas, labels).to(device)
@@ -47,21 +47,20 @@ def main():
     with torch.no_grad():
         for step_num, batch_data in enumerate(dev_dataloader):
             token_ids, masks, labels = tuple(t for t in batch_data)
-            token_ids.to(device)
-            masks.to(device)
-            labels.to(device)
+            token_ids = token_ids.to(device)
+            masks = masks.to(device)
+            labels = labels.to(device)
             logits = bert_clf(token_ids, masks)
             loss_func = nn.BCELoss().to(device)
             loss = loss_func(logits, labels)
             numpy_logits = logits.cpu().detach().numpy()
-
             bert_predicted += list(numpy_logits[:, 0] > 0.5)
             all_logits += list(numpy_logits[:, 0])
 
     print(classification_report(dev_y, bert_predicted))
 
     # test model
-    def get_config(path: str) -> dict:
+    def get_config(path):
         with open(resource_filename(__name__, path), 'r') as stream:
             conf = yaml.safe_load(stream)
         return conf
@@ -86,8 +85,8 @@ def main():
             return_tensors='pt',
         )
 
-        token_ids = encoded_review['input_ids']
-        attention_mask = encoded_review['attention_mask']
+        token_ids = encoded_review['input_ids'].to(device)
+        attention_mask = encoded_review['attention_mask'].to(device)
 
         output = bert_clf(token_ids, attention_mask)
         _, prediction = torch.max(output, dim=1)

@@ -12,7 +12,7 @@ class BertBinaryClassifier(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, tokens, masks=None):
-        _, pooled_output = self.bert(tokens, attention_mask=masks, output_all_encoded_layers=False)
+        _, pooled_output = self.bert(tokens, attention_mask=masks)
         dropout_output = self.dropout(pooled_output)
         linear_output = self.linear(dropout_output)
         proba = self.sigmoid(linear_output)
