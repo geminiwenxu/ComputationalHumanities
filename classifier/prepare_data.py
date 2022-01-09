@@ -59,10 +59,10 @@ def prepare_data(BATCH_SIZE):
     train_dataset = torch.utils.data.TensorDataset(train_tokens_tensor, train_masks_tensor, train_y_tensor)
     train_sampler = torch.utils.data.RandomSampler(train_dataset)
     train_dataloader = torch.utils.data.DataLoader(train_dataset, sampler=train_sampler, batch_size=BATCH_SIZE,
-                                                   num_worker=4)
+                                                   num_workers=4)
 
     dev_dataset = torch.utils.data.TensorDataset(dev_tokens_tensor, dev_masks_tensor, dev_y_tensor)
     dev_sampler = torch.utils.data.SequentialSampler(dev_dataset)
-    dev_dataloader = torch.utils.data.DataLoader(dev_dataset, sampler=dev_sampler, batch_size=BATCH_SIZE, num_worker=4)
+    dev_dataloader = torch.utils.data.DataLoader(dev_dataset, sampler=dev_sampler, batch_size=BATCH_SIZE, num_workers=4)
 
     return train_dataloader, train_data, dev_dataloader, dev_data, dev_y
