@@ -11,7 +11,7 @@ from pkg_resources import resource_filename
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
 BATCH_SIZE = 1
-EPOCHS = 3
+EPOCHS = 1
 bert_clf = BertBinaryClassifier()
 bert_clf.to(device)
 optimizer = torch.optim.Adam(bert_clf.parameters(), lr=3e-6)
