@@ -30,10 +30,10 @@ def main():
         ai.train(
             data,
             batch_size=100,
-            learning_rate= 0.1,
+            learning_rate=0.1,
             n_gpu=1,
             seed=27,
-            num_steps=5,
+            num_steps=3,
             generate_every=100,
             output_dir=out_dir,
             # TensorBoardLogger to track the different experiments and keep the model which performs the best
