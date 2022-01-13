@@ -18,7 +18,6 @@ def main():
 
     # Load model with aitextgen
     hf_model = "minimaxir/hacker-news"
-    # hf_model = 'EleutherAI/gpt-neo-125M'
     ai = aitextgen(model=hf_model, verbose=True)
     ai.to_gpu()
 
@@ -30,6 +29,8 @@ def main():
         data = TokenDataset(file_name, tokenizer_file=tokenizer_file, block_size=2)
         ai.train(
             data,
+            batch_size=100,
+            learning_rate= 0.1,
             n_gpu=1,
             seed=27,
             num_steps=5,
