@@ -10,11 +10,11 @@ from pkg_resources import resource_filename
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-BATCH_SIZE = 1
+BATCH_SIZE = 32
 EPOCHS = 1
 bert_clf = BertBinaryClassifier()
 bert_clf.to(device)
-optimizer = torch.optim.Adam(bert_clf.parameters(), lr=3e-6)
+optimizer = torch.optim.Adam(bert_clf.parameters(), lr=0.01)
 train_dataloader, train_data, dev_dataloader, dev_data, dev_y = prepare_data(BATCH_SIZE)
 class_names = ['human written', 'machine written']
 
