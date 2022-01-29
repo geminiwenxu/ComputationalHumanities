@@ -2,10 +2,10 @@ file_path:
   path: /plaintext_dataset/
 
 train:
-  path: /../recognition_dataset-labeled/dataset_train.json
+  path: /../recognition_dataset-labeled/train_test.json
 
 dev:
-  path: /../recognition_dataset-labeled/dataset_dev.json
+  path: /../recognition_dataset-labeled/dev_test.json
 
 test:
-  path: /../recognition_dataset-challenge/dataset_test.json
+  path: /../recognition_dataset-challenge/test_test.json

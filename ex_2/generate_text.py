@@ -1,7 +1,7 @@
 from aitextgen import aitextgen
 
 if __name__ == '__main__':
-    out_dir = "results/"
+    out_dir = "../results/"
 
     ai = aitextgen(model_folder=out_dir, tokenizer_file="aitextgen.tokenizer.json", verbose=True)
 

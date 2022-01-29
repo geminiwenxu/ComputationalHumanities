@@ -21,7 +21,7 @@ def main():
     ai = aitextgen(model=hf_model, verbose=True)
     ai.to_gpu()
 
-    out_dir = "results/"
+    out_dir = "../results/"
     all_files = glob.glob(folder_path + "*.txt")
     for file_name in all_files:
         tokenizer_file = "aitextgen.tokenizer.json"
