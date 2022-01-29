@@ -5,7 +5,7 @@ from transformers import BertTokenizerFast
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
 
 
-class GPReviewDataset(Dataset):
+class ReviewDataset(Dataset):
 
     def __init__(self, reviews, targets, tokenizer, max_len):
         self.reviews = reviews
@@ -38,7 +38,7 @@ class GPReviewDataset(Dataset):
 
 
 def create_data_loader(df, tokenizer, max_len, batch_size):
-    ds = GPReviewDataset(
+    ds = ReviewDataset(
         reviews=df.text.to_numpy(),
         targets=df.label_id.to_numpy(),
         tokenizer=tokenizer,

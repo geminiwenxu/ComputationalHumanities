@@ -12,3 +12,4 @@ results/
 aitextgen/
 recognition_dataset-labeled/
 recognition_dataset-challenge/
+classifier/best_model_state.bin

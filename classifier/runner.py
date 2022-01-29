@@ -1,15 +1,28 @@
-from classifier_2.bert_model import BertBinaryClassifier
-from classifier_2.prepare_data import create_data_loader
+from classifier.bert_model import BertBinaryClassifier
+from classifier.prepare_data import create_data_loader
 import torch
 import torch.nn as nn
+from collections import defaultdict
 from sklearn.metrics import classification_report
-
+from transformers import get_linear_schedule_with_warmup
 import json
 import yaml
 from pkg_resources import resource_filename
 from transformers import BertTokenizerFast
 import pandas as pd
-import numpy as np
+from classifier.train import train_epoch, eval_model
+from classifier.prediction import get_predictions
+import matplotlib.pyplot as plt
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+class_names = ['machine-generated', 'human-written']
+tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
+
+model = BertBinaryClassifier(len(class_names))
+model.to(device)
+
+MAX_LEN = 160
+BATCH_SIZE = 16
 
 
 def get_config(path):
@@ -18,91 +31,94 @@ def get_config(path):
     return conf
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
-EPOCHS = 20
-bert_clf = BertBinaryClassifier()
-bert_clf.to(device)
-optimizer = torch.optim.Adam(bert_clf.parameters(), lr=0.01)
-
-class_names = ['human written', 'machine written']
-MAX_LEN = 512
-
 config = get_config('/../config/config.yaml')
 train_path = resource_filename(__name__, config['train']['path'])
 dev_path = resource_filename(__name__, config['dev']['path'])
 test_path = resource_filename(__name__, config['test']['path'])
-BATCH_SIZE = 16
+
 df_train = pd.read_json(train_path)
-
 df_dev = pd.read_json(dev_path)
-
-dev_data = [{'text': text, 'label': type_data} for text in list(df_dev['text']) for type_data in
-            list(df_dev['label_id'])]
-dev_labels = df_dev['label_id']
-dev_y = np.array(dev_labels) == 1
 
 train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
-train_df = pd.read_json(train_path)
-train_data = [{'text': text, 'label': type_data} for text in list(train_df['text']) for type_data in
-              list(train_df['label_id'])]
+
+EPOCHS = 2
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+total_steps = len(train_data_loader) * EPOCHS
+scheduler = get_linear_schedule_with_warmup(
+    optimizer,
+    num_warmup_steps=0,
+    num_training_steps=total_steps
+)
+loss_fn = nn.CrossEntropyLoss().to(device)
 
 
 def main():
-    # training model
-    for epoch_num in range(EPOCHS):
-        bert_clf.train()
-        train_loss = 0
-        for step_num, d in enumerate(train_data_loader):
-            input_ids = d["input_ids"].to(device)
-            attention_mask = d["attention_mask"].to(device)
-            targets = d["targets"].unsqueeze(1)
-            targets = targets.float()
-            targets = targets.to(device)
-            probas = bert_clf(
-                input_ids=input_ids,
-                attention_mask=attention_mask
-            )
-            loss_func = nn.BCELoss()
-            batch_loss = loss_func(probas, targets).to(device)
-            train_loss += batch_loss.item()
-            batch_loss.backward()
-            nn.utils.clip_grad_norm_(bert_clf.parameters(), max_norm=1.0)
-            optimizer.step()
-            bert_clf.zero_grad()
-            print('Epoch: ', epoch_num + 1)
-            print(
-                "\r" + "{0}/{1} loss: {2} ".format(step_num, len(train_data) / BATCH_SIZE, train_loss / (step_num + 1)))
+    history = defaultdict(list)
+    best_accuracy = 0
 
-    # evaluate model
-    bert_clf.eval()
-    bert_predicted = []
-    all_logits = []
-    with torch.no_grad():
-        for step_num, d in enumerate(dev_data_loader):
-            input_ids = d["input_ids"].to(device)
-            attention_mask = d["attention_mask"].to(device)
-            targets = d["targets"].unsqueeze(1)
-            targets = targets.float()
-            targets = targets.to(device)
-            logits = bert_clf(input_ids, attention_mask)
-            loss_func = nn.BCELoss().to(device)
-            loss = loss_func(logits, targets)
-            numpy_logits = logits.cpu().detach().numpy()
-            bert_predicted += list(numpy_logits[:, 0] > 0.5)
-            all_logits += list(numpy_logits[:, 0])
-    print(classification_report(dev_y, bert_predicted))
+    for epoch in range(EPOCHS):
+
+        print(f'Epoch {epoch + 1}/{EPOCHS}')
+        print('-' * 10)
+
+        train_acc, train_loss = train_epoch(
+            model,
+            train_data_loader,
+            loss_fn,
+            optimizer,
+            device,
+            scheduler,
+            len(df_train)
+        )
+
+        print(f'Train loss {train_loss} accuracy {train_acc}')
+
+        val_acc, val_loss = eval_model(
+            model,
+            dev_data_loader,
+            loss_fn,
+            device,
+            len(df_dev)
+        )
+
+        print(f'Val   loss {val_loss} accuracy {val_acc}')
+        print()
+
+        history['train_acc'].append(train_acc)
+        history['train_loss'].append(train_loss)
+        history['val_acc'].append(val_acc)
+        history['val_loss'].append(val_loss)
+
+        if val_acc > best_accuracy:
+            torch.save(model.state_dict(), 'best_model_state.bin')
+            best_accuracy = val_acc
+    plt.plot(history['train_acc'], label='train accuracy')
+    plt.plot(history['val_acc'], label='validation accuracy')
+
+    plt.title('Training history')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend()
+    plt.ylim([0, 1])
+
+    # evaluate on unseen data (not sure the dev dataset is the validation or to be tested?)
+    dev_acc, _ = eval_model(
+        model,
+        dev_data_loader,
+        loss_fn,
+        device,
+        len(df_dev)
+    )
+
+    print(dev_acc.item())
+    y_pred, y_pred_probs, y_dev = get_predictions(
+        model,
+        dev_data_loader
+    )
+    print(classification_report(y_dev, y_pred, target_names=class_names))
 
     # test model
-    def get_config(path):
-        with open(resource_filename(__name__, path), 'r') as stream:
-            conf = yaml.safe_load(stream)
-        return conf
-
-    config = get_config('/../config/config.yaml')
-    test_path = resource_filename(__name__, config['test']['path'])
     result = []
     f = open(test_path)
     data = json.load(f)
@@ -124,7 +140,7 @@ def main():
         token_ids = encoded_review['input_ids'].to(device)
         attention_mask = encoded_review['attention_mask'].to(device)
 
-        output = bert_clf(token_ids, attention_mask)
+        output = model(token_ids, attention_mask)
         _, prediction = torch.max(output, dim=1)
         prediction = class_names[prediction]
 
