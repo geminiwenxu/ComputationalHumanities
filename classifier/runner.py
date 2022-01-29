@@ -101,22 +101,23 @@ def main():
     plt.xlabel('Epoch')
     plt.legend()
     plt.ylim([0, 1])
+    plt.savefig('epoch.png', bbox_inches='tight')
 
     # evaluate on unseen data (not sure the dev dataset is the validation or to be tested?)
-    dev_acc, _ = eval_model(
-        model,
-        dev_data_loader,
-        loss_fn,
-        device,
-        len(df_dev)
-    )
-
-    print(dev_acc.item())
-    y_pred, y_pred_probs, y_dev = get_predictions(
-        model,
-        dev_data_loader
-    )
-    print(classification_report(y_dev, y_pred, target_names=class_names))
+    # dev_acc, _ = eval_model(
+    #     model,
+    #     dev_data_loader,
+    #     loss_fn,
+    #     device,
+    #     len(df_dev)
+    # )
+    #
+    # print(dev_acc.item())
+    # y_pred, y_pred_probs, y_dev = get_predictions(
+    #     model,
+    #     dev_data_loader
+    # )
+    # print(classification_report(y_dev, y_pred, target_names=class_names))
 
     # test model
     result = []
