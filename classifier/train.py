@@ -1,6 +1,6 @@
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 
 def train_epoch(
@@ -21,16 +21,22 @@ def train_epoch(
         input_ids = d["input_ids"].to(device)
         attention_mask = d["attention_mask"].to(device)
         targets = d["targets"].to(device)
+        re_targets = targets.reshape(len(targets), 1)
+        re_targets = re_targets.to(torch.float32)
 
         outputs = model(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
+        # print("train", outputs)
+        preds = (outputs > 0.5).float()
+        # print("train", preds)
+        # print("train", re_targets)
 
-        _, preds = torch.max(outputs, dim=1)
-        loss = loss_fn(outputs, targets)
+        loss = loss_fn(outputs, re_targets)
 
-        correct_predictions += torch.sum(preds == targets)
+        correct_predictions += torch.sum(preds == re_targets)
+        # print("train", correct_predictions)
         losses.append(loss.item())
 
         loss.backward()
@@ -53,16 +59,21 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(device)
+            re_targets = targets.reshape(len(targets), 1)
+            re_targets = re_targets.to(torch.float32)
 
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask
             )
-            _, preds = torch.max(outputs, dim=1)
+            preds = (outputs > 0.5).float()
+            # print("eval", outputs)
+            # print("eval", preds)
+            # print("eval", re_targets)
+            loss = loss_fn(outputs, re_targets)
 
-            loss = loss_fn(outputs, targets)
-
-            correct_predictions += torch.sum(preds == targets)
+            correct_predictions += torch.sum(preds == re_targets)
+            # print("eval", correct_predictions)
             losses.append(loss.item())
 
     return correct_predictions.double() / n_examples, np.mean(losses)

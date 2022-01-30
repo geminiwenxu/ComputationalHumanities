@@ -5,11 +5,8 @@ test-output/
 unzipped/
 translated/
 plaintext_dataset/
-trained_model/
-results_hacker/
-aitextgen/
-results/
-aitextgen/
+
+
 recognition_dataset-labeled/
 recognition_dataset-challenge/
 classifier/best_model_state.bin

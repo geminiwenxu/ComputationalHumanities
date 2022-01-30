@@ -1,5 +1,5 @@
 import torch
-import torch.nn.functional as F
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -13,6 +13,7 @@ def get_predictions(model, data_loader):
 
     with torch.no_grad():
         for d in data_loader:
+            texts = d["review_text"]
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(device)
@@ -21,10 +22,13 @@ def get_predictions(model, data_loader):
                 input_ids=input_ids,
                 attention_mask=attention_mask
             )
-            _, preds = torch.max(outputs, dim=1)
+            # print('pred_outputs', outputs)
+            preds = (outputs > 0.5).float()
+            # print("pred", preds)
 
-            probs = F.softmax(outputs, dim=1)
+            probs = outputs
 
+            review_texts.extend(texts)
             predictions.extend(preds)
             prediction_probs.extend(probs)
             real_values.extend(targets)
@@ -32,4 +36,4 @@ def get_predictions(model, data_loader):
     predictions = torch.stack(predictions).cpu()
     prediction_probs = torch.stack(prediction_probs).cpu()
     real_values = torch.stack(real_values).cpu()
-    return predictions, prediction_probs, real_values
+    return review_texts, predictions, prediction_probs, real_values

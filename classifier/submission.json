@@ -1,22 +1,22 @@
 [
     {
         "prediction_id": 0,
-        "prediction": "human-written",
+        "prediction": "machine-generated",
         "index": 0
     },
     {
         "prediction_id": 1,
-        "prediction": "human-written",
+        "prediction": "machine-generated",
         "index": 1
     },
     {
         "prediction_id": 2,
-        "prediction": "human-written",
+        "prediction": "machine-generated",
         "index": 2
     },
     {
         "prediction_id": 3,
-        "prediction": "human-written",
+        "prediction": "machine-generated",
         "index": 3
     }
 ]

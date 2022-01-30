@@ -19,7 +19,6 @@ class ReviewDataset(Dataset):
     def __getitem__(self, item):
         review = str(self.reviews[item])
         target = self.targets[item]
-
         encoding = self.tokenizer.encode_plus(
             review,
             add_special_tokens=True,
@@ -31,6 +30,7 @@ class ReviewDataset(Dataset):
         )
 
         return {
+            'review_text': review,
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
             'targets': torch.tensor(target, dtype=torch.long)

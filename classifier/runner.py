@@ -1,21 +1,22 @@
-from classifier.bert_model import BertBinaryClassifier
-from classifier.prepare_data import create_data_loader
+import json
+from collections import defaultdict
+
+import pandas as pd
 import torch
 import torch.nn as nn
-from collections import defaultdict
-from sklearn.metrics import classification_report
-from transformers import get_linear_schedule_with_warmup
-import json
 import yaml
 from pkg_resources import resource_filename
+from sklearn.metrics import classification_report
 from transformers import BertTokenizerFast
-import pandas as pd
-from classifier.train import train_epoch, eval_model
+from transformers import get_linear_schedule_with_warmup
+
+from classifier.bert_model import BertBinaryClassifier
 from classifier.prediction import get_predictions
-import matplotlib.pyplot as plt
+from classifier.prepare_data import create_data_loader
+from classifier.train import train_epoch, eval_model
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-class_names = ['machine-generated', 'human-written']
+class_names = ['human-written', 'machine-generated']
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
 
 model = BertBinaryClassifier(len(class_names))
@@ -42,7 +43,7 @@ df_dev = pd.read_json(dev_path)
 train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 
-EPOCHS = 2
+EPOCHS = 10
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
@@ -50,7 +51,7 @@ scheduler = get_linear_schedule_with_warmup(
     num_warmup_steps=0,
     num_training_steps=total_steps
 )
-loss_fn = nn.CrossEntropyLoss().to(device)
+loss_fn = nn.BCEWithLogitsLoss().to(device)
 
 
 def main():
@@ -58,7 +59,6 @@ def main():
     best_accuracy = 0
 
     for epoch in range(EPOCHS):
-
         print(f'Epoch {epoch + 1}/{EPOCHS}')
         print('-' * 10)
 
@@ -74,50 +74,45 @@ def main():
 
         print(f'Train loss {train_loss} accuracy {train_acc}')
 
-        val_acc, val_loss = eval_model(
-            model,
-            dev_data_loader,
-            loss_fn,
-            device,
-            len(df_dev)
-        )
-
-        print(f'Val   loss {val_loss} accuracy {val_acc}')
-        print()
-
-        history['train_acc'].append(train_acc)
-        history['train_loss'].append(train_loss)
-        history['val_acc'].append(val_acc)
-        history['val_loss'].append(val_loss)
-
-        if val_acc > best_accuracy:
-            torch.save(model.state_dict(), 'best_model_state.bin')
-            best_accuracy = val_acc
-    plt.plot(history['train_acc'], label='train accuracy')
-    plt.plot(history['val_acc'], label='validation accuracy')
-
-    plt.title('Training history')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend()
-    plt.ylim([0, 1])
-    plt.savefig('epoch.png', bbox_inches='tight')
+        # val_acc, val_loss = eval_model(
+        #     model,
+        #     dev_data_loader,
+        #     loss_fn,
+        #     device,
+        #     len(df_dev)
+        # )
+        #
+        # print(f'Val   loss {val_loss} accuracy {val_acc}')
+        # print()
+        #
+        # history['train_acc'].append(train_acc)
+        # history['train_loss'].append(val_acc)
+        # history['val_acc'].append(val_acc)
+        # history['val_loss'].append(val_loss)
+        #
+        # if val_acc > best_accuracy:
+        #     torch.save(model.state_dict(), 'best_model_state.bin')
+        #     best_accuracy = val_acc
 
     # evaluate on unseen data (not sure the dev dataset is the validation or to be tested?)
-    # dev_acc, _ = eval_model(
-    #     model,
-    #     dev_data_loader,
-    #     loss_fn,
-    #     device,
-    #     len(df_dev)
-    # )
-    #
+    dev_acc, _ = eval_model(
+        model,
+        dev_data_loader,
+        loss_fn,
+        device,
+        len(df_dev)
+    )
+
     # print(dev_acc.item())
-    # y_pred, y_pred_probs, y_dev = get_predictions(
-    #     model,
-    #     dev_data_loader
-    # )
-    # print(classification_report(y_dev, y_pred, target_names=class_names))
+    y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
+        model,
+        dev_data_loader
+    )
+    y_pred = y_pred.cpu().detach().numpy()
+
+    # print("pred", y_pred)
+    # print("pred", y_dev)
+    print(classification_report(y_dev, y_pred, target_names=class_names))
 
     # test model
     result = []
@@ -130,7 +125,7 @@ def main():
         index = i['index']
         encoded_review = tokenizer.encode_plus(
             review_text,
-            max_length=512,
+            max_length=MAX_LEN,
             add_special_tokens=True,
             return_token_type_ids=False,
             pad_to_max_length=True,
@@ -142,7 +137,9 @@ def main():
         attention_mask = encoded_review['attention_mask'].to(device)
 
         output = model(token_ids, attention_mask)
-        _, prediction = torch.max(output, dim=1)
+        # print(output)
+        prediction = (output > 0.5).int()
+        # print(prediction)
         prediction = class_names[prediction]
 
         dict['prediction_id'] = prediction_id
