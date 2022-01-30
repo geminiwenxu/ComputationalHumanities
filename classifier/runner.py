@@ -121,7 +121,6 @@ def main():
     for i in data:
         dict = {}
         review_text = i['text']
-        prediction_id = i['index']
         index = i['index']
         encoded_review = tokenizer.encode_plus(
             review_text,
@@ -138,13 +137,13 @@ def main():
 
         output = model(token_ids, attention_mask)
 
-        prediction = (output > 0.5).int()
+        prediction_id = (output > 0.5).int().item()
 
-        prediction = class_names[prediction]
-
-        dict['prediction_id'] = prediction_id
-        dict['prediction'] = prediction
+        prediction = class_names[prediction_id]
         dict['index'] = index
+        dict['prediction'] = prediction
+        dict['prediction_id'] = prediction_id
+
         result.append(dict)
     with open("submission.json", "w", encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)

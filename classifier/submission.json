@@ -1,22 +1,22 @@
 [
     {
-        "prediction_id": 0,
-        "prediction": "machine-generated",
-        "index": 0
+        "index": 0,
+        "prediction": "human-written",
+        "prediction_id": 0
     },
     {
-        "prediction_id": 1,
-        "prediction": "machine-generated",
-        "index": 1
+        "index": 1,
+        "prediction": "human-written",
+        "prediction_id": 0
     },
     {
-        "prediction_id": 2,
-        "prediction": "machine-generated",
-        "index": 2
+        "index": 2,
+        "prediction": "human-written",
+        "prediction_id": 0
     },
     {
-        "prediction_id": 3,
-        "prediction": "machine-generated",
-        "index": 3
+        "index": 3,
+        "prediction": "human-written",
+        "prediction_id": 0
     }
 ]
