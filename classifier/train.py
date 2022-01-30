@@ -28,22 +28,21 @@ def train_epoch(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
-        # print("train", outputs)
-        preds = (outputs > 0.5).float()
-        # print("train", preds)
-        # print("train", re_targets)
 
+        preds = (outputs > 0.45).float()
         loss = loss_fn(outputs, re_targets)
-
         correct_predictions += torch.sum(preds == re_targets)
-        # print("train", correct_predictions)
+        print("train outputs", outputs)
+        print("train preds", preds)
+        print("train re_targets", re_targets)
+        print("train loss", loss)
+        print("train correct_prediction", correct_predictions)
         losses.append(loss.item())
-
+        optimizer.zero_grad()
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
         scheduler.step()
-        optimizer.zero_grad()
 
     return correct_predictions.double() / n_examples, np.mean(losses)
 
@@ -66,14 +65,14 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
                 input_ids=input_ids,
                 attention_mask=attention_mask
             )
-            preds = (outputs > 0.5).float()
-            # print("eval", outputs)
-            # print("eval", preds)
-            # print("eval", re_targets)
+            preds = (outputs > 0.45).float()
             loss = loss_fn(outputs, re_targets)
-
             correct_predictions += torch.sum(preds == re_targets)
-            # print("eval", correct_predictions)
+            print("eval outputs", outputs)
+            print("eval preds", preds)
+            print("eval re_targets", re_targets)
+            print("eval loss", loss)
+            print("eval correct_prediction", correct_predictions)
             losses.append(loss.item())
 
     return correct_predictions.double() / n_examples, np.mean(losses)

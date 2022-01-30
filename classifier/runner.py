@@ -19,7 +19,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['human-written', 'machine-generated']
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
 
-model = BertBinaryClassifier(len(class_names))
+model = BertBinaryClassifier()
 model.to(device)
 
 MAX_LEN = 160
@@ -43,15 +43,15 @@ df_dev = pd.read_json(dev_path)
 train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 
-EPOCHS = 10
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+EPOCHS = 1
+optimizer = torch.optim.Adam(model.parameters(), lr=3e-6)
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
     optimizer,
     num_warmup_steps=0,
     num_training_steps=total_steps
 )
-loss_fn = nn.BCEWithLogitsLoss().to(device)
+loss_fn = nn.BCELoss().to(device)
 
 
 def main():
@@ -94,24 +94,24 @@ def main():
         #     torch.save(model.state_dict(), 'best_model_state.bin')
         #     best_accuracy = val_acc
 
-    # evaluate on unseen data (not sure the dev dataset is the validation or to be tested?)
-    dev_acc, _ = eval_model(
-        model,
-        dev_data_loader,
-        loss_fn,
-        device,
-        len(df_dev)
-    )
+    # dev_acc, _ = eval_model(
+    #     model,
+    #     dev_data_loader,
+    #     loss_fn,
+    #     device,
+    #     len(df_dev)
+    # )
+    #
+    # print("result of evaluating model-accuracy of dev dataset:", dev_acc.item())
 
-    # print(dev_acc.item())
     y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
         model,
         dev_data_loader
     )
     y_pred = y_pred.cpu().detach().numpy()
 
-    # print("pred", y_pred)
-    # print("pred", y_dev)
+    print("pred y_pred", y_pred)
+    print("pred y_dev", y_dev)
     print(classification_report(y_dev, y_pred, target_names=class_names))
 
     # test model
@@ -137,9 +137,9 @@ def main():
         attention_mask = encoded_review['attention_mask'].to(device)
 
         output = model(token_ids, attention_mask)
-        # print(output)
+
         prediction = (output > 0.5).int()
-        # print(prediction)
+
         prediction = class_names[prediction]
 
         dict['prediction_id'] = prediction_id
